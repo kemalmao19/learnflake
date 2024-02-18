@@ -2,12 +2,14 @@
   description = "kemal";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
   };
-  outputs = inputs:
-    let pkgs = inputs.nixpkgs.legacyPackages.x86_64-darwin;
+  outputs = inputs: inputs.flake-utils.lib.eachDefaultSystem (system:
+    let
+      pkgs = inputs.nixpkgs.legacyPackages.${system};
     in
     {
-      devShells.x86_64-darwin = {
+      devShells = {
         default = pkgs.mkShell {
           buildInputs = [ ];
         };
@@ -17,6 +19,10 @@
             pkgs.python3
           ];
         };
+        nodejs = pkgs.mkShell {
+          buildInputs = [ pkgs.nodejs pkgs.nodePackages.yarn pkgs.nodePackages.pnpm ];
+        };
       };
-    };
+    }
+  );
 }
